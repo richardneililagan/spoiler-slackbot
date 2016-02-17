@@ -1,0 +1,58 @@
+{
+  "name": "spoiler-slackbot",
+  "version": "0.0.1",
+  "description": "A Slackbot for managing spoilers in conversation.",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf lib && babel --source-maps inline --copy-files src --out-dir lib",
+    "test": "node test | tap-spec",
+    "test:babel": "babel-node test | tap-spec",
+    "preversion": "npm test",
+    "version": "npm run build && git add -A",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/richardneililagan/spoiler-slackbot.git"
+  },
+  "keywords": [
+    "slack",
+    "slackbot",
+    "bot",
+    "spoilers",
+    "node",
+    "nodejs"
+  ],
+  "author": "Richard Neil Ilagan <me@richardneililagan.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/richardneililagan/spoiler-slackbot/issues"
+  },
+  "homepage": "https://github.com/richardneililagan/spoiler-slackbot#readme",
+  "devDependencies": {
+    "babel-cli": "6.5.1",
+    "babel-plugin-transform-es2015-arrow-functions": "^6.5.0",
+    "babel-plugin-transform-es2015-literals": "^6.5.0",
+    "babel-plugin-transform-es2015-parameters": "^6.5.0",
+    "babel-plugin-transform-strict-mode": "^6.5.0",
+    "eslint": "1.10.3",
+    "eslint-config-standard": "4.4.0",
+    "eslint-plugin-standard": "1.3.2",
+    "tap-spec": "4.1.1",
+    "tape": "4.4.0",
+    "tape-eslint": "1.2.1"
+  },
+  "babel": {
+    "plugins": [
+      "transform-es2015-arrow-functions",
+      "transform-es2015-literals",
+      "transform-es2015-parameters",
+      "transform-strict-mode"
+    ]
+  },
+  "dependencies": {
+    "koa": "1.1.2",
+    "lodash": "4.4.0",
+    "nedb": "1.8.0"
+  }
+}
