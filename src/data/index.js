@@ -6,7 +6,7 @@ function DaoGenerator (db) {
   var api = {}
 
   /**
-   * Get an entry with ID beginning with or equal to specified id string.
+   * Get entries with ID beginning with or equal to specified id string.
    * Resolves into an array of all matching results.
    */
   api.get = id => {
@@ -20,6 +20,15 @@ function DaoGenerator (db) {
     return db.findAsync({
       _id: idRegex
     })
+  }
+
+  /**
+   * Like [api#get], but restricted to a channel.
+   */
+  api.getInChannel = (id, channelId) => {
+    return Promise.filter(
+      api.get(id), item => item.channel_id === channelId
+    )
   }
 
   /**
