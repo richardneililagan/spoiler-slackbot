@@ -1,8 +1,26 @@
 var Promise = require('bluebird')
+var uuid = require('node-uuid')
 var assign = require('lodash/assign')
 
 function DaoGenerator (db) {
   var api = {}
+
+  /**
+   * Get an entry with ID beginning with or equal to specified id string.
+   * Resolves into an array of all matching results.
+   */
+  api.get = id => {
+    // :: failsafe
+    if (!id) {
+      return Promise.reject('ID parameter required.')
+    }
+
+    var idRegex = new RegExp(`^${ id }`)
+
+    return db.findAsync({
+      _id: idRegex
+    })
+  }
 
   /**
    * Create a new entry in the spoiler DB
@@ -28,7 +46,8 @@ function DaoGenerator (db) {
     }
 
     var _item = assign({}, item, {
-      _id: 123
+      _id: uuid.v4().split('-').join(''),
+      created_at: +(new Date())
     })
 
     return db.insertAsync(_item)
