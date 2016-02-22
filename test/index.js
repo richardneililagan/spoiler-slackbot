@@ -1,12 +1,18 @@
 var test = require('tape')
 var Promise = require('bluebird')
 
+var map = require('lodash/map')
+var random = require('lodash/random')
+var uniqueid = require('lodash/uniqueId')
+var pick = require('lodash/pick')
+var without = require('lodash/without')
+
 // :: begin tests
 test('eslint', require('tape-eslint')({
   files: ['src/**/*.js']
 }))
 
-test('db should have promise functions', (t) => {
+test('db should have working promise functionality', t => {
   var datastore = require('../src/db')
   var db = datastore()
 
@@ -26,4 +32,74 @@ test('db should have promise functions', (t) => {
     })
 
   t.ok(countTask instanceof Promise, 'db returns Promise objects')
+})
+
+test('dao should have correct sizing functionality', t => {
+  var datastore = require('../src/db')
+  var db = datastore()
+  var dao = require('../src/data')(db)
+
+  var items = map(Array(random(1, 10)), _ => {
+    return {
+      test: uniqueid()
+    }
+  })
+
+  dao.size()
+    .then(result => {
+      t.equal(result, 0, 'Initial empty size confirmed.')
+    })
+    .then(_ => {
+      return db.insertAsync(items)
+    })
+    .then(_ => {
+      return dao.size()
+    })
+    .then(result => {
+      t.equal(result, items.length, `Modified size of ${ items.length } confirmed correct.`)
+    })
+    .finally(_ => {
+      t.end()
+    })
+})
+
+test('dao should require specific properties on insert', t => {
+  var datastore = require('../src/db')
+  var dao = require('../src/data')(datastore())
+
+  var validitem = {
+    team_id: 'foo',
+    channel_id: 'bar',
+    user_id: 'test',
+    user_name: 'herp',
+    spoiler_text: 'derp'
+  }
+
+  var requiredkeys = map(validitem, (i, k) => k)
+
+  dao.size()
+    .then(result => {
+      t.equal(result, 0, 'Initial empty size confirmed')
+    })
+    .then(_ => {
+      return Promise.any(map(requiredkeys, key => {
+
+        var targetkeys = without(requiredkeys, key)
+        var targetitem = pick(validitem, targetkeys)
+
+        return dao.post(targetitem)
+          .then(_ => {
+            t.fail(`${ key } failed mandatory check on insert.`)
+          })
+      }))
+    })
+    .then(_ => {
+      t.fail('Some inserts succeeded unexpectedly.')
+    })
+    .catch(_ => {
+      t.pass('All inserts failed mandatory requirements as expected.')
+    })
+    .finally(_ => {
+      t.end()
+    })
 })
